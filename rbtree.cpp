@@ -1,10 +1,11 @@
 #include "rbtree.h"
 #include "rbnode.h"
 
-//There is no key with 0 value.
-//Parent of root and all leaves is TNULL.
-//TNULL parent is nullptr.
-//No duplicates allowed.
+/*There is no key with 0 value, only TNULL dummy key.
+ *0 means BLACK node, 1 means RED node.
+ *Parent of root and all leaves is TNULL.
+ *TNULL's parent is nullptr.
+ *No duplicates allowed. */
 
 RBTree::RBTree()
 {
@@ -75,7 +76,6 @@ bool RBTree::rb_insert(int key)
     return true;
 }
 
-//Check when grandparent is TNULL????
 void RBTree::insert_fixup(RBNode* node)
 {
     RBNode* uncle;
@@ -135,7 +135,7 @@ void RBTree::insert_fixup(RBNode* node)
                 left_rotate (node -> parent -> parent);
             }
         }
-        //
+        //to avoid having red node with red root parent which would cause denied access when TNULL is parent of root and grandparent of node.
         if (node == root)
             break;
     }
@@ -143,9 +143,10 @@ void RBTree::insert_fixup(RBNode* node)
     root -> color = 0;
 }
 
-//replaces a sub-tree (rooted at u) with another (rooted at v) while preserving the BST structure.
-//u is the deleted node and v is the one that replaces it.
-//Assigns a parent to TNULL nodes.
+/*replaces a sub-tree (rooted at u) with another (rooted at v) while preserving the BST structure.
+ *u is the deleted node and v is the one that replaces it.
+ *Assigns a parent to TNULL nodes when v is TNULL.
+ */
 void RBTree::rb_transplant(RBNode* u, RBNode* v)
 {
     if (u -> parent == TNULL)
@@ -243,12 +244,11 @@ void RBTree::delete_fixup(RBNode* node)
     node -> color = 0;
 }
 
-/* Handles cases of deleting a red Node and calls delete_fixup to handle cases of deleting a black  Node.
+/* Handles cases of deleting a red Node and calls delete_fixup to handle cases of deleting a black Node.
 * Returns: false if the tree is empty or the key not exist, otherwise returns true.
 * @pointer node is the deleted node, @pointer succ is the successor that will replace it.
-* This function makes sure all cases assign a parent to  the child node when it's equal TNULL.
+* This function makes sure all cases assign a parent to the child node when it's equal TNULL.
 */
-
 bool RBTree::rb_delete(int key)
 {
     RBNode* node {search_helper(key)};
@@ -383,7 +383,6 @@ RBNode* RBTree::min_helper (RBNode* node) const
     {
         node = node-> left;
     }
-
     return node;
 }
 
@@ -435,7 +434,7 @@ RBNode* RBTree::successor_helper(RBNode* node) const
     RBNode* p {node -> parent};
 
     //Notice short circuit.
-    //This loop will terminate if it's a maximum node then there is no successor, or the successor is found.
+    //This loop will terminate if it's a maximum node, there is no successor, or the successor is found.
     //Parent of root is TNULL.
     while(p != TNULL && node == p->right )
     {
@@ -471,7 +470,7 @@ RBNode* RBTree::predecessor_helper(RBNode* node) const
     RBNode* p {node -> parent};
 
     //Notice short circuit.
-    //This loop will terminate if it's a maximum node then there is no successor, or the successor is found.
+    //This loop will terminate if it's a minimum node, there is no predecessor, or the predecessor is found.
     //Parent of root is TNULL.
     while(p != TNULL && node == p-> left )
     {
@@ -479,7 +478,6 @@ RBNode* RBTree::predecessor_helper(RBNode* node) const
         p = p -> parent;
     }
     return p;
-
 }
 
 //If not exist or tree is empty, returns TNULL.
@@ -504,7 +502,6 @@ RBNode* RBTree::search_helper(int key) const
             current = current -> right;
         }
     }
-
     return current;
 }
 
@@ -592,8 +589,7 @@ RBNode* RBTree::rb_clone(RBNode* otherTreeNode, RBNode* otherTreeTNULL,RBNode* p
 }
 
 //deep copy.
-// In Copy Constructor and Assignment operator,
-//it's very important to declare which TNULL Node you are using, to avoid shallow copy.
+// In Copy Constructor and Assignment operator, it's very important to declare which TNULL Node you are using, to avoid shallow copy.
 RBTree::RBTree (RBTree& otherTree)
 {
     TNULL = new RBNode(0);
@@ -664,7 +660,6 @@ void RBTree::destroy_helper (RBNode* &root)
     }
 
 }
-
 
 //Deletes all node Including TNULL and assigns root to nullptr.
 RBTree::~RBTree()
